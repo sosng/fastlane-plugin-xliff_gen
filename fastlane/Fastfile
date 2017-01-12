@@ -1,0 +1,3 @@
+lane :test do
+  xliff_en_gen
+end
