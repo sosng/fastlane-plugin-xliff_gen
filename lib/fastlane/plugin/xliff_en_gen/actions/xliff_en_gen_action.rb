@@ -3,18 +3,26 @@ module Fastlane
     class XliffEnGenAction < Action
       def self.run(params)
         require 'nokogiri'
+        
+        projectPath = File.absolute_path(params[:xcodeproj])
+        
+        workingPath = File.dirname(projectPath)
 
-        projectPath = params[:xcodeproj]
+        dir = File.dirname(projectPath)
+        
+        file = File.basename(projectPath)
+  
+        sh ("cd #{dir} && xcodebuild -exportLocalizations -localizationPath #{workingPath} -project #{file} -exportLanguage en")
 
-        system( "xcodebuild -exportLocalizations -localizationPath . -project #{projectPath} -exportLanguage en")
-
-        doc = Nokogiri::XML(File.open("en.xliff"))
+        xliffPath = File.join(workingPath, "en.xliff")
+        
+        doc = Nokogiri::XML(File.open(xliffPath))
 
         doc.remove_namespaces!
 
         UI.message("Found: "+doc.xpath("count(//file[@original='uan/en.lproj/Localizable.strings']/body/trans-unit)").to_s()+" translation unit")
 
-        transUnits = doc.xpath("//file[@original='uan/en.lproj/Localizable.strings']/body/trans-unit")
+        transUnits = doc.xpath("//file[contains(@original,'Localizable.strings')]/body/trans-unit")
 
         translations  =  Array.new 
 
@@ -56,13 +64,11 @@ module Fastlane
 
         FileUtils.mv 'Localizable.strings', localizablePath, :force => true
 
-        cleanup
+        FileUtils.rm xliffPath, :force => true
 
       end
 
-      def self.cleanup
-        FileUtils.rm 'en.xliff', :force => true
-      end
+
 
       def self.description
         "gen Localizable.strings file from xliff"

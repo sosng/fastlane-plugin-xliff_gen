@@ -1,3 +1,3 @@
 lane :test do
-  xliff_en_gen
+  xliff_en_gen(xcodeproj:"./test/test.xcodeproj",localizable:"./test/test/Base.lproj/")
 end
