@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = %q{luc.alexander.sun@icloud.com}
 
   spec.summary       = %q{gen Localizable.strings file from xliff}
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-xliff_en_gen"
+  spec.homepage      = "https://github.com/xiangyu-sun/fastlane-plugin-xliff_en_gen"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
