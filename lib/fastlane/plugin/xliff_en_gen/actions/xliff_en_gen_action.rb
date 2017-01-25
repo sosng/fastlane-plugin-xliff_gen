@@ -100,7 +100,7 @@ module Fastlane
                              optional: false,
                              type: String,
                              verify_block: proc do |value|
-                               UI.user_error!("Please use the path to the project") if value.end_with? ".xcodeproj"
+                               UI.user_error!("Please use the path to the project") if !value.end_with? ".xcodeproj"
                                UI.user_error!("Could not find Xcode project at path '#{File.expand_path(value)}'") if !File.exist?(value) and !Helper.is_test?
                              end),
           FastlaneCore::ConfigItem.new(key: :localizable,
