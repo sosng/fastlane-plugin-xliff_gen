@@ -96,11 +96,11 @@ module Fastlane
           #                             type: String)
           FastlaneCore::ConfigItem.new(key: :xcodeproj,
                              env_name: "XLIFF_EN_GEN_PROJECT",
-                             description: "optional, you must specify the path to your main Xcode project if it is not in the project root directory",
-                             optional: true,
+                             description: "Specify the path to your main Xcode project",
+                             optional: false,
                              type: String,
                              verify_block: proc do |value|
-                               UI.user_error!("Please pass the path to the project, not the workspace") if value.end_with? ".xcworkspace"
+                               UI.user_error!("Please use the path to the project") if value.end_with? ".xcodeproj"
                                UI.user_error!("Could not find Xcode project at path '#{File.expand_path(value)}'") if !File.exist?(value) and !Helper.is_test?
                              end),
           FastlaneCore::ConfigItem.new(key: :localizable,
