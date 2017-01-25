@@ -6,6 +6,8 @@ module Fastlane
         
         projectPath = File.absolute_path(params[:xcodeproj])
         
+        UI.message("Located project at: "+projectPath)
+
         workingPath = File.dirname(projectPath)
 
         dir = File.dirname(projectPath)
@@ -46,16 +48,15 @@ module Fastlane
 
         translations.sort! {|x,y| x['id'] <=> y ['id']}
 
-
         File.open("Localizable.strings", "w"){ |f|
 
-        translations.each do |transInfo|
+          translations.each do |transInfo|
 
-        f.write ('/* ' + transInfo['note'] + ' */' + "\n")
-        f.write ('"' + transInfo['id'] + '"' + "=" '"' + transInfo['English'] + '";' + "\n")
-        f.write ("\n")
+          f.write ('/* ' + transInfo['note'] + ' */' + "\n")
+          f.write ('"' + transInfo['id'] + '"' + "=" '"' + transInfo['English'] + '";' + "\n")
+          f.write ("\n")
 
-        end
+          end
 
         }
 
@@ -64,6 +65,8 @@ module Fastlane
 
         FileUtils.mv 'Localizable.strings', localizablePath, :force => true
 
+        UI.message("Localizable moved to: "+localizablePath)
+
         FileUtils.rm xliffPath, :force => true
 
       end
@@ -71,7 +74,7 @@ module Fastlane
 
 
       def self.description
-        "gen Localizable.strings file from xliff"
+        "Overwrite project Localizable.strings file from English version xliff"
       end
 
       def self.authors
@@ -83,29 +86,23 @@ module Fastlane
       end
 
       def self.details
-        # Optional:
-        "generate new Localizable.strings file based on export en.xliff"
+        "Generate new Localizable.strings file based on the exported en.xliff by using xcode build, and over write the file based on the en.xliff.\n This will include nokogiri to parse xml."
       end
 
       def self.available_options
         [
-          # FastlaneCore::ConfigItem.new(key: :your_option,
-          #                         env_name: "XLIFF_EN_GEN_YOUR_OPTION",
-          #                      description: "A description of your option",
-          #                         optional: false,
-          #                             type: String)
           FastlaneCore::ConfigItem.new(key: :xcodeproj,
                              env_name: "XLIFF_EN_GEN_PROJECT",
                              description: "Specify the path to your main Xcode project",
                              optional: false,
                              type: String,
                              verify_block: proc do |value|
-                               UI.user_error!("Please use the path to the project") if !value.end_with? ".xcodeproj"
+                               UI.user_error!("Please specify your project file path") if !value.end_with? ".xcodeproj"
                                UI.user_error!("Could not find Xcode project at path '#{File.expand_path(value)}'") if !File.exist?(value) and !Helper.is_test?
                              end),
           FastlaneCore::ConfigItem.new(key: :localizable,
                              env_name: "XLIFF_EN_GEN_LOCALIZABLE_PATH",
-                             description: "localizable path to replace",
+                             description: "localizable.strings path to be replaced",
                              optional: false,
                              type: String,
                              verify_block: proc do |value|
@@ -115,9 +112,6 @@ module Fastlane
       end
 
       def self.is_supported?(platform)
-        # Adjust this if your plugin only works for a particular platform (iOS vs. Android, for example)
-        # See: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
-        #
         [:ios, :mac].include?(platform)
         true
       end
