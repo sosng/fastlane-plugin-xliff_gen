@@ -1,7 +1,11 @@
 module Fastlane
   module Actions
+    module SharedValues
+      XE_XLIFF_LOCATION = :XE_XLIFF_LOCATION
+    end
     class XliffEnGenAction < Action
       def self.run(params)
+
         require 'nokogiri'
         
         projectPath = File.absolute_path(params[:xcodeproj])
@@ -17,12 +21,14 @@ module Fastlane
         sh ("cd #{dir} && xcodebuild -exportLocalizations -localizationPath #{workingPath} -project #{file} -exportLanguage en")
 
         xliffPath = File.join(workingPath, "en.xliff")
+
+        Actions.lane_context[SharedValues::XE_XLIFF_LOCATION] = xliffPath
         
         doc = Nokogiri::XML(File.open(xliffPath))
 
         doc.remove_namespaces!
 
-        UI.message("Found: "+doc.xpath("count(//file[@original='uan/en.lproj/Localizable.strings']/body/trans-unit)").to_s()+" translation unit")
+        UI.message("Found total: "+doc.xpath("count(//file[@original='uan/en.lproj/Localizable.strings']/body/trans-unit)").to_s()+" translation unit")
 
         transUnits = doc.xpath("//file[contains(@original,'Localizable.strings')]/body/trans-unit")
 
@@ -67,8 +73,12 @@ module Fastlane
 
         UI.message("Localizable moved to: "+localizablePath)
 
-        FileUtils.rm xliffPath, :force => true
-
+        keepFile = params[:keepArtifacts]
+        
+        if not keepFile
+          FileUtils.rm xliffPath, :force => true
+        end 
+      
       end
 
 
@@ -84,9 +94,15 @@ module Fastlane
       def self.return_value
         # If your method provides a return value, you can describe here what it does
       end
+      def self.output
+        [
+          ['XE_XLIFF_LOCATION', 'Path to en.xliff']
+        ]
+      end
 
       def self.details
-        "Generate new Localizable.strings file based on the exported en.xliff by using xcode build, and over write the file based on the en.xliff.\n This will include nokogiri to parse xml."
+        "Generate new Localizable.strings file based on the exported en.xliff by using xcode build, and over write the file based on the en.xliff.\n This will include nokogiri to parse xml.
+        lane context XE_XLIFF_LOCATION will be used for store location of the en.xliff"
       end
 
       def self.available_options
@@ -107,7 +123,13 @@ module Fastlane
                              type: String,
                              verify_block: proc do |value|
                                UI.user_error!("Could not find Localizable.strings project at path '#{File.expand_path(value)}'") if !File.exist?(value) and !Helper.is_test?
-                             end)
+                             end),
+          FastlaneCore::ConfigItem.new(key: :keepArtifacts,
+                             env_name: "XLIFF_EN_GEN_KEEP_ARTIFACTS",
+                             description: "whether keep the en.xliff file for your use",
+                             optional: true,
+                             default_value: false,
+                             type: TrueClass)
         ]
       end
 
