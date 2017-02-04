@@ -1,8 +1,5 @@
 module Fastlane
   module Actions
-    module SharedValues
-      XE_XLIFF_LOCATION = :XE_XLIFF_LOCATION
-    end
     class XliffEnGenAction < Action
       def self.run(params)
 
@@ -12,18 +9,8 @@ module Fastlane
         
         UI.message("Located project at: "+projectPath)
 
-        workingPath = File.dirname(projectPath)
+        xliffPath = other_action.export_xliff(xcodeproj:projectPath)
 
-        dir = File.dirname(projectPath)
-        
-        file = File.basename(projectPath)
-  
-        sh ("cd #{dir} && xcodebuild -exportLocalizations -localizationPath #{workingPath} -project #{file} -exportLanguage en")
-
-        xliffPath = File.join(workingPath, "en.xliff")
-
-        Actions.lane_context[SharedValues::XE_XLIFF_LOCATION] = xliffPath
-        
         doc = Nokogiri::XML(File.open(xliffPath))
 
         doc.remove_namespaces!
@@ -96,7 +83,7 @@ module Fastlane
       end
       def self.output
         [
-          ['XE_XLIFF_LOCATION', 'Path to en.xliff']
+          
         ]
       end
 
