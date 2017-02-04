@@ -4,4 +4,6 @@ lane :test do
   puts "output: "+lane_context[SharedValues::XE_XLIFF_LOCATION]
 
   puts export_xliff(xcodeproj:"./test/test.xcodeproj")
+
+  puts Actions.lane_context[SharedValues::XE_XLIFF_LOCATION]
 end
