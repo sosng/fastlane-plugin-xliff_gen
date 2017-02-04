@@ -65,7 +65,7 @@ module Fastlane
                              description: "target language",
                              optional: true,
                              type: String,
-                             default: "en"
+                             default: "en")
         ]
       end
 
