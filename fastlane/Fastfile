@@ -2,4 +2,6 @@ lane :test do
   xliff_en_gen(xcodeproj:"./test/test.xcodeproj",localizable:"./test/test/Base.lproj/", keepArtifacts: false)
 
   puts "output: "+lane_context[SharedValues::XE_XLIFF_LOCATION]
+
+  puts export_xliff(xcodeproj:"./test/test.xcodeproj")
 end
