@@ -27,13 +27,15 @@ module Fastlane
 
         target =  unit.at_xpath("target/text()")
 
+        source = unit.at_xpath("source/text()")
+
         note =  unit.at_xpath("note/text()")
 
         if note == nil
           note = "(No Commment)"
         end
 
-        info = { "id" => transId, "English" => target, "note" => note  }
+        info = { "id" => transId, "English" => source, "note" => note  }
 
         translations << info
 
